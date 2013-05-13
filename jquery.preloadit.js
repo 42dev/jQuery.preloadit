@@ -14,6 +14,9 @@
  *
  *  Function: onUpdate
  *      This plugin fire when an image is loaded
+ *
+ *  Function: onImgLoad
+ *      Method called when an image is loaded
  *      
  *      Parameters:
  *          imagesLoaded - the number of images loaded so far
@@ -25,7 +28,8 @@
              
             var defaults = {
                 onComplete: false,  
-                onUpdate: false
+                onUpdate: false,
+                onImgLoad: false
             }, t = this;
              
             $.extend(this, defaults, options);         
@@ -36,43 +40,82 @@
             }
                          
             this.cache = [];
+            this.completedRequests = [];
             this.loadedImages = [];
              
-            for(var i=0; i<this.$images.length; i++){
-                var $img = $(this.$images[i]),
+            //request each image through ajax
+            this.$images.each(function(i, o){
+                var $img = $(o),
                     src = $img.attr('src');
                      
+                // after request completion check if it was a sucess or otherwise.
                 $.ajax({
                     url: src,
-                    complete: function(){
-                        onImgLoad.apply(t, [$img]);
+                    complete: function(xhr, status){
+                        switch(xhr.status){
+                            case 200: 
+                                onSuccess.call(t, $img);
+                                break;
+                            default:
+                                addXHR.call(t, xhr)
+                        }
                     }
                 });
-            }
+            });
         }
     };
      
     /*
      * Group: private methods
      * 
-     * Method: onLoad
-     *      Listener for onImgLoad event. Fires whether the image
-     *      was successfully found or if it could not be found. 
-     *      Triggers <onComplete> and <onUpdate> where appropriate. 
-     * 
-     * Parameters: 
-     *      $img - jQuery object of image that was preloaded 
      */
-    function onImgLoad($img){
-        this.loadedImages.push($img);
-         
-        //run the update function
+
+    /*
+     * onSuccess()
+     *  loads the image into the dom then fires an event
+     */
+    function onSuccess($img){
+        var t = this;
+
+        $img.load(function(){
+            //remove hidden image from dom
+            $img.remove();
+            //unhide img
+            $img.show()
+
+            t.loadedImages.push($img);            
+
+            if(t.onImgLoad){
+                t.onImgLoad($img);
+            }
+
+            addXHR.call(t);
+        });
+        $("body").append($img.hide());       
+        
+    }
+
+    /*
+     * addXHR()
+     */
+     function addXHR(xhr){
+        this.completedRequests.push(xhr);
+        checkComplete.call(this)
+     }
+
+    /*
+     * checkComplete()
+     *  see if the requests are done
+     *  send updates
+     */
+    function checkComplete(){
+        //update the number of completed requests
         if(this.onUpdate){
-            this.onUpdate(this.loadedImages.length, this.$images.length);    
+            this.onUpdate(this.completedRequests.length, this.$images.length);    
         }
- 
+
         //run the oncomplete images function well all images loaded
-        if (this.loadedImages.length === this.$images.length) {
+        if (this.completedRequests.length === this.$images.length) {
             if(this.onComplete){                        
                 this.onComplete();
             }
