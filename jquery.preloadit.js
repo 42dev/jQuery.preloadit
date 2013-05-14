@@ -147,7 +147,7 @@
         //load images
         for( i = 0; i < images.length; i++ ){
           var $img = $("<img/>");
-          $img.attr("src", "imgs/"+images[i]);
+          $img.attr("src", images[i]);
           $preloadContainer.append($img);
         }
 
