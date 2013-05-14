@@ -122,6 +122,9 @@
         }
     }
      
+    /*
+     * Preload arr assums the jquery object is a div
+     */
     $.fn.preloadit = function(method) {
         if (methods[method]) {
             return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
@@ -130,5 +133,25 @@
         } else {
             $.error('Method ' + method + ' does not exist on jQuery.');
         }
+    };
+
+    /*
+     * Preload arr assums the jquery object is an array of urls
+     */
+    $.fn.preloadArr = function(options){
+
+        images = this;
+        //preload conainer
+        var $preloadContainer = $("<div>");
+
+        //load images
+        for( i = 0; i < images.length; i++ ){
+          var $img = $("<img/>");
+          $img.attr("src", "imgs/"+images[i]);
+          $preloadContainer.append($img);
+        }
+
+        //after preload insert into dom
+        $preloadContainer.preloadit(options);
     };
 }(jQuery));

@@ -12,18 +12,7 @@
           "not_and_image.png"
         ];
 
-        //preload conainer
-        var $preloadContainer = $("<div>");
-
-        //load images
-        for( i = 0; i < images.length; i++ ){
-          var $img = $("<img/>");
-          $img.attr("src", "imgs/"+images[i]);
-          $preloadContainer.append($img);
-        }
-
-        //after preload insert into dom
-        $preloadContainer.preloadit({
+        $(images).preloadArr({
           onComplete: function(){ console.log("COMPLETE")},
           onUpdate: function(){ console.log(arguments)},
           onImgLoad: function($img){ 
