@@ -1,5 +1,5 @@
 /*
- * File: jquery.preloadit-1.0.js
+ * File: jquery.preloadit-0.0.3.js
  * 
  * Class: preloadit
  *  This plugin preloads all the images all the images contained in the extended images.
